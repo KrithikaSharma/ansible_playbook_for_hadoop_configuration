@@ -1,0 +1,78 @@
+- hosts: namenode
+  vars_files:
+  - task11.yml
+         
+  tasks:
+          - name: "copying java software"
+            copy:
+                    src: "/root/jdk-8u171-linux-x64.rpm"
+                    dest: "/root/"
+
+          - name: "copying hadoop software"
+            copy:
+                    src: "/root/hadoop-1.2.1-1.x86_64.rpm"
+                    dest: "/root/"
+
+          - name: "installing java"
+            shell: "rpm -ivh jdk-8u171-linux-x64.rpm"
+            register: jdk
+            ignore_errors: yes
+
+          - debug:
+                    var: jdk.stdout
+
+
+            #yum:
+                    #name: "/root/jdk-8u171-linux-x64.rpm"
+                    #state: present
+                    #disable_gpg_check: yes
+
+          - name: "installing hadoop"
+            shell: "rpm -ivh /root/hadoop-1.2.1-1.x86_64.rpm --force -Y"
+            register: hdp
+            ignore_errors: yes
+
+          - debug:
+                    var: hdp.stdout
+
+          - name: "copying hdfs file" 
+            template: 
+                    src: "Nhdfs-site.xml"
+                    dest: "/etc/hadoop/hdfs-site.xml"
+
+
+          - name: "copying core file"
+            template:
+                    src: "Ncore-site.xml"
+                    dest: "/etc/hadoop/core-site.xml"
+
+          - shell: "rm -rf /nn"
+            ignore_errors: yes
+
+          - name: "creating directory"
+            file:
+                    path: "/nn"
+                    state: directory
+
+                    #          - name: "formatting namenode directory"
+                    # shell: "hadoop namenode -format -Y"
+                    # register : frmt
+
+                    #          - debug:
+                    #var: frmt.stdout
+
+          - name: " starting namenode"
+            command : "hadoop-daemon.sh start namenode"
+            register: hdp_demn
+
+          - debug:
+                  var: hdp.demn.stdout
+
+          - shell: "jps"
+            register: jps
+
+          - debug:
+                  var: jps.stdout
+
+
+

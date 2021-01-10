@@ -1,0 +1,44 @@
+- hosts: datanode
+  vars_files:
+          task11.yml
+
+  tasks: 
+          - name: "copying java software"
+            copy:
+                    src: "/root/jdk-8u171-linux-x64.rpm"
+                    dest: "/root/"
+
+          - name: "copying hadoop software"
+            copy:
+                    src: "/root/hadoop-1.2.1-1.x86_64.rpm"
+                    dest: "/root/"
+
+          - name: "installing java"
+            yum:
+                    name: "/root/jdk-8u171-linux-x64.rpm"
+                    state: present
+                    disable_gpg_check: yes
+
+          - name: "installing hadoop"
+            shell: "rpm -ivh /root/hadoop-1.2.1-1.x86_64.rpm --force"
+
+          - name: "copying hdfs file" 
+            template: 
+                    src: "dhdfs-site.xml"
+                    dest: "/etc/hadoop/hdfs-site.xml"
+
+          - name: "copying core file"
+            template:
+                    src: "dcore-site.xml"
+                    dest: "/etc/hadoop/core-site.xml"
+
+          - name: "creating directory"
+            file:
+                    path: "/dn"
+                    state: directory
+
+          - name: " starting namenode"
+            command : "hadoop-daemon.sh start datanode"
+
+
+
